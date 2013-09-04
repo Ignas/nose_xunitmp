@@ -7,12 +7,12 @@ README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-    'nosetest'
+    'nose'
 ]
 
 
 setup(name='nose_xunitmp',
-      version='0.1',
+      version='0.2',
       description='Xunit output when running multiprocess tests using nose',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
