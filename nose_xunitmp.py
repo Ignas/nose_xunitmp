@@ -6,6 +6,16 @@ from nose.plugins.base import Plugin
 from nose.plugins.xunit import Xunit
 
 
+def custom_force_unicode(s):
+    if isinstance(s, str):
+        s = s.decode(self.encoding, 'replace')
+    return s
+
+try:
+    from nose.pyversion import force_unicode
+except ImportError:
+    force_unicode = custom_force_unicode
+
 MANAGER = multiprocessing.Manager()
 MP_ERRORLIST = MANAGER.list()
 MP_STATS = MANAGER.dict()
@@ -60,7 +70,7 @@ class XunitMP(Xunit):
             u'<testsuite name="nosetests" tests="%(total)d" '
             u'errors="%(errors)d" failures="%(failures)d" '
             u'skip="%(skipped)d">' % self.stats)
-        self.error_report_file.write(u''.join([self._forceUnicode(e)
+        self.error_report_file.write(u''.join([force_unicode(e)
                                                for e in self.errorlist]))
         self.error_report_file.write(u'</testsuite>')
         self.error_report_file.close()
