@@ -4,17 +4,8 @@ import codecs
 
 from nose.plugins.base import Plugin
 from nose.plugins.xunit import Xunit
+from nose.pyversion import force_unicode
 
-
-def custom_force_unicode(s):
-    if isinstance(s, str):
-        s = s.decode(self.encoding, 'replace')
-    return s
-
-try:
-    from nose.pyversion import force_unicode
-except ImportError:
-    force_unicode = custom_force_unicode
 
 MANAGER = multiprocessing.Manager()
 MP_ERRORLIST = MANAGER.list()
