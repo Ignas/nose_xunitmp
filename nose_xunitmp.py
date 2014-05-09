@@ -73,8 +73,6 @@ class XunitMP(Xunit):
             # Nose before 1.3 didn't have _forceUnicode
             self.error_report_file.write(u''.join(self.errorlist))
 
-        self.error_report_file.write(u''.join([self._forceUnicode(e)
-                                               for e in self.errorlist]))
         self.error_report_file.write(u'</testsuite>')
         self.error_report_file.close()
         if self.config.verbosity > 1:
