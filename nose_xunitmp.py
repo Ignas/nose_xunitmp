@@ -7,11 +7,6 @@ from nose.plugins.xunit import Xunit
 from nose.pyversion import force_unicode
 
 
-MANAGER = multiprocessing.Manager()
-MP_ERRORLIST = MANAGER.list()
-MP_STATS = MANAGER.dict()
-
-
 class XunitMP(Xunit):
     """This plugin provides test results in the standard XUnit XML format."""
 
@@ -36,13 +31,24 @@ class XunitMP(Xunit):
         Plugin.configure(self, options, config)
         self.config = config
         if self.enabled:
-            self.stats = MP_STATS
-            self.stats.update(
-                {'errors': 0,
-                 'failures': 0,
-                 'passes': 0,
-                 'skipped': 0})
-            self.errorlist = MP_ERRORLIST
+            # Each subprocess gets a new instance of this plugin. We need to be
+            # sure that each of these instances shares the same errorlist/stats
+            # Placing them on self.config achieves this, as nose pickles it and
+            # passes it to each subprocess.
+            # Doing it here (rather than at the module level) means that they
+            # will be shared on Windows too.
+            if not hasattr(self.config, '_nose_xunitmp_state'):
+                manager = multiprocessing.Manager()
+                self.errorlist = manager.list()
+                self.stats = manager.dict(**{
+                    'errors': 0,
+                    'failures': 0,
+                    'passes': 0,
+                    'skipped': 0
+                })
+                self.config._nose_xunitmp_state = self.errorlist, self.stats
+            else:
+                self.errorlist, self.stats = self.config._nose_xunitmp_state
             self.error_report_filename = options.xunitmp_file
 
     def report(self, stream):
