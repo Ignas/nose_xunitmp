@@ -6,6 +6,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 
 import nose.plugins
+import nose.plugins.manager
 
 from nose_xunitmp import XunitMP
 
@@ -13,9 +14,16 @@ from nose_xunitmp import XunitMP
 _here = os.path.dirname(__file__)
 
 
+PLUGINS = [XunitMP(), nose.plugins.multiprocess.MultiProcess()]
+
+class PluginManager(nose.plugins.manager.PluginManager):
+    def __init__(_self, *args, **kwargs):
+        super(PluginManager, _self).__init__(plugins=PLUGINS)
+
+
 class TestProducesOutput(nose.plugins.PluginTester, unittest.TestCase):
     activate = '--with-xunitmp'
-    plugins = [XunitMP(), nose.plugins.multiprocess.MultiProcess()]
+    plugins = PLUGINS
     suitepath = os.path.join(_here, 'support.py')
     args = ['--processes=2']
 
@@ -24,12 +32,18 @@ class TestProducesOutput(nose.plugins.PluginTester, unittest.TestCase):
         os.close(fd)
         self.args += ['--xunitmp-file=%s' % self.path]
         # Due to the way PluginTester works, the plugins in self.plugins are
-        # not automatically loaded in the test processes. If we add them to
-        # _instantiate_plugins, then the multiprocessing plugin will load them.
-        nose.plugins.multiprocess._instantiate_plugins = [p.__class__ for p in
-                                                          self.plugins]
-        # PluginTester's setUp() does the actual test run
-        super(TestProducesOutput, self).setUp()
+        # not automatically loaded in the test sub-processes. Unfortunately, we
+        # can't use the multiprocessing plugin's _instantiate_plugins either,
+        # as this does not work on Windows. Instead, we create a custom
+        # PluginManager which always loads our plugins. The multiprocessing
+        # plugin will pickle this class (not the instance) into the sub-procs.
+        original_plugin_manager = nose.plugins.manager.PluginManager
+        nose.plugins.manager.PluginManager = PluginManager
+        try:
+            super(TestProducesOutput, self).setUp()
+        finally:
+            nose.plugins.manager.PluginManager = original_plugin_manager
+        # The tests will have run, so we can parse the output for our tests
         self.xml = ET.parse(self.path)
         self.root = self.xml.getroot()
 
