@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
@@ -12,9 +12,9 @@ requires = [
 
 
 setup(name='nose_xunitmp',
-      version='0.3.2',
+      version='0.4.0',
       description='Xunit output when running multiprocess tests using nose',
-      long_description=README + '\n\n' +  CHANGES,
+      long_description=README + '\n\n' + CHANGES,
       classifiers=[
           "Development Status :: 4 - Beta",
           "Intended Audience :: Developers",

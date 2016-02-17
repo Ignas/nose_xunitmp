@@ -1,3 +1,8 @@
+0.4
+---
+
+-  Windows support added by Michael Killough
+
 0.3
 ---
 
