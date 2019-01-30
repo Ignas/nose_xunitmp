@@ -14,6 +14,7 @@ class XunitMP(Xunit):
     score = 2000
     error_report_filename = None
     error_report_file = None
+    xunit_prefix_class = None
 
     def options(self, parser, env):
         """Sets additional command line options."""
