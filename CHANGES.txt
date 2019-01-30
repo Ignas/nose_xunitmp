@@ -1,3 +1,8 @@
+0.4.1
+---
+
+-  Fix 'xunit_prefix_class' exception
+
 0.4
 ---
 
