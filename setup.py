@@ -12,7 +12,7 @@ requires = [
 
 
 setup(name='nose_xunitmp',
-      version='0.4.0',
+      version='0.4.1',
       description='Xunit output when running multiprocess tests using nose',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
